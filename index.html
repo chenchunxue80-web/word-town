@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Smart English 快乐启蒙</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:'Nunito','PingFang SC','Microsoft YaHei',sans-serif;
+  background:linear-gradient(180deg,#e3f2fd 0%,#bbdefb 40%,#90caf9 80%);
+  min-height:100vh;overflow-x:hidden;
+  -webkit-tap-highlight-color:transparent;
+  user-select:none;-webkit-user-select:none;
+}
+.bubbles{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.bubble{position:absolute;border-radius:50%;opacity:0.3;animation:floatB 8s infinite ease-in-out;background:radial-gradient(circle at 30% 30%,rgba(255,255,255,0.9),rgba(135,206,250,0.4))}
+.bubble:nth-child(1){width:60px;height:60px;left:10%;animation-delay:0s}
+.bubble:nth-child(2){width:40px;height:40px;left:25%;animation-delay:2s}
+.bubble:nth-child(3){width:80px;height:80px;left:45%;animation-delay:4s}
+.bubble:nth-child(4){width:35px;height:35px;left:65%;animation-delay:1s}
+.bubble:nth-child(5){width:55px;height:55px;left:80%;animation-delay:3s}
+.bubble:nth-child(6){width:45px;height:45px;left:90%;animation-delay:5s}
+@keyframes floatB{0%,100%{transform:translateY(100vh) scale(0.3);opacity:0}20%{opacity:0.3}50%{opacity:0.2}80%{opacity:0.3}100%{transform:translateY(-100px) scale(1.2);opacity:0}}
+
+.main{max-width:800px;margin:0 auto;padding:15px;position:relative;z-index:1}
+h1{text-align:center;color:#fff;font-size:1.8em;font-weight:900;text-shadow:2px 2px 0 rgba(0,0,0,0.1);margin-bottom:4px}
+.sub{text-align:center;color:rgba(255,255,255,0.9);font-size:0.95em;font-weight:700;margin-bottom:12px}
+
+/* 导航 */
+nav{display:flex;gap:5px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+nav button{padding:8px 13px;border:2px solid rgba(255,255,255,0.5);border-radius:20px;background:rgba(255,255,255,0.2);color:#fff;font-size:0.85em;cursor:pointer;transition:all 0.2s;font-weight:700}
+nav button:hover{background:rgba(255,255,255,0.35);transform:translateY(-2px)}
+nav button.on{background:#fff;color:#2979ff;border-color:#fff;box-shadow:0 3px 12px rgba(0,0,0,0.1)}
+
+/* 游戏面板 */
+.panel{background:rgba(255,255,255,0.93);border-radius:24px;padding:22px 18px;min-height:380px;box-shadow:0 8px 30px rgba(0,0,0,0.08)}
+
+.score{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;padding-bottom:10px;border-bottom:2px dashed #e3f2fd}
+.score div{text-align:center;font-size:0.75em;color:#999;font-weight:700}
+.score div span{display:block;font-size:1.6em;font-weight:900;color:#2979ff}
+
+/* 闪卡 */
+.fc{display:flex;flex-direction:column;align-items:center;gap:16px}
+.card{width:250px;height:180px;perspective:1000px;cursor:pointer}
+.card-inner{width:100%;height:100%;position:relative;transform-style:preserve-3d;transition:transform 0.6s}
+.card.flip .card-inner{transform:rotateY(180deg)}
+.cf,.cb{position:absolute;width:100%;height:100%;backface-visibility:hidden;border-radius:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:1.6em;font-weight:900;box-shadow:0 6px 20px rgba(0,0,0,0.08)}
+.cf{background:linear-gradient(135deg,#e0f7fa,#b2ebf2);color:#2c5fa1}
+.cf em{font-size:2.4em;font-style:normal;margin-bottom:8px}
+.cb{background:linear-gradient(135deg,#e3f2fd,#bbdefb);color:#1565c0;transform:rotateY(180deg)}
+.cb em{font-size:1.8em;font-style:normal;margin-bottom:4px}
+.cb small{font-size:0.5em;color:#999}
+.nv{display:flex;gap:20px;align-items:center}
+.nv button{width:44px;height:44px;border-radius:50%;border:none;background:#2979ff;color:#fff;font-size:1.3em;cursor:pointer;transition:all 0.2s}
+.nv button:hover{transform:scale(1.1)}
+.nv span{font-weight:700;color:#999;min-width:50px;text-align:center}
+
+/* 按钮 */
+.btn{padding:12px 26px;border:none;border-radius:22px;font-size:1em;cursor:pointer;transition:all 0.2s;font-weight:700}
+.btn-say{background:linear-gradient(135deg,#ffe066,#f6e58d);color:#d63031}
+.btn-say:hover{transform:scale(1.05);box-shadow:0 4px 12px rgba(255,224,102,0.4)}
+.btn-go{background:linear-gradient(135deg,#2979ff,#2196f3);color:#fff}
+.btn-go:hover{transform:scale(1.05)}
+.btn:active{transform:scale(0.92)}
+
+/* 选择题 */
+.qz{text-align:center}
+.qz .qen{font-size:2.5em;font-weight:900;color:#2979ff;margin:12px 0}
+.qz .qem{font-size:3em;display:block;margin-bottom:6px}
+.qz .qpro{color:#bbb;margin-bottom:6px;font-size:0.85em;font-weight:700}
+.qz .qopts{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:460px;margin:0 auto}
+.qz .qopts div{padding:14px;border:3px solid #e8e8e8;border-radius:16px;background:#fff;font-size:1.1em;cursor:pointer;transition:all 0.2s;font-weight:700;text-align:center}
+.qz .qopts div:hover{border-color:#2979ff;background:#f5f8ff;transform:scale(1.03)}
+.qz .qopts div.ok{border-color:#00b894;background:#e6fff5;color:#00b894}
+.qz .qopts div.ng{border-color:#ff6b6b;background:#fff5f5;color:#ff6b6b}
+
+/* 连连看 */
+.mg{display:grid;grid-template-columns:1fr 1fr;gap:8px;max-width:550px;margin:0 auto}
+.mg .mc{display:flex;flex-direction:column;gap:5px}
+.mg .mc div{padding:11px 8px;border:3px solid #e8e8e8;border-radius:14px;text-align:center;cursor:pointer;transition:all 0.2s;font-weight:700;background:#fff;font-size:0.95em}
+.mg .mc div:hover{border-color:#2979ff;background:#f5f8ff}
+.mg .mc div.sel{border-color:#ffd700;background:#fffde7;box-shadow:0 0 10px rgba(255,215,0,0.4)}
+.mg .mc div.done{border-color:#00b894;background:#e6fff5;opacity:0.5;pointer-events:none}
+.mg .mc div.err{animation:shake 0.5s;border-color:#ff6b6b}
+
+/* 对话 */
+.dcard{background:#fff;border-radius:20px;padding:18px;margin:10px 0;box-shadow:0 3px 12px rgba(0,0,0,0.05);text-align:center}
+.dcard .dxh{font-size:1em;color:#999;font-weight:700;margin-bottom:6px}
+.dcard .dxen{font-size:1.5em;font-weight:900;color:#2d3436;margin-top:4px}
+.dtag{display:inline-block;padding:5px 16px;border-radius:16px;font-weight:700;font-size:0.85em;margin-bottom:10px}
+.dtag.q{background:#e3f2fd;color:#2979ff}
+.dtag.a{background:#e8f5e9;color:#2e7d32}
+.dstep{text-align:center;color:#aaa;font-size:0.85em;font-weight:700;margin-bottom:6px}
+
+/* 动画 */
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-10px)}75%{transform:translateX(10px)}}
+@keyframes pop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes floatUp{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-70px);opacity:0}}
+.pop{animation:pop 0.5s}
+.fpt{position:absolute;color:#ffd700;font-weight:900;font-size:1.4em;pointer-events:none;animation:floatUp 1s forwards;z-index:50}
+.cfx{position:fixed;width:12px;height:12px;border-radius:3px;pointer-events:none;animation:cfFall 2.5s forwards;z-index:300}
+@keyframes cfFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(105vh) rotate(1080deg);opacity:0}}
+
+.stars{font-size:2.5em;margin:8px 0}
+.big-e{font-size:4em}
+.result{text-align:center;padding:20px}
+.result h3{color:#2979ff;font-size:1.3em;margin:8px 0}
+.result p{color:#aaa;margin-bottom:12px}
+
+/* 吉祥物 */
+.pet{position:fixed;bottom:12px;right:12px;font-size:3em;cursor:pointer;z-index:100;animation:petB 1.5s infinite}
+@keyframes petB{0%,100%{transform:translateY(0)}30%{transform:translateY(-12px)}50%{transform:translateY(0)}}
+.pet:active{transform:scale(1.3)}
+.pet-msg{position:fixed;bottom:80px;right:8px;background:#fff;color:#2979ff;padding:8px 14px;border-radius:16px 16px 4px 16px;font-weight:700;font-size:0.9em;z-index:100;box-shadow:0 3px 12px rgba(0,0,0,0.12);display:none}
+
+@media(max-width:500px){
+  .qz .qopts{grid-template-columns:1fr}
+  .card{width:210px;height:155px}
+  .cf,.cb{font-size:1.3em}
+  nav button{padding:7px 10px;font-size:0.78em}
+}
+</style>
+</head>
+<body>
+
+<div class="bubbles"><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div><div class="bubble"></div></div>
+<div class="pet" id="pet">🐶</div>
+<div class="pet-msg" id="petMsg"></div>
+
+<div class="main">
+  <h1>🌟 Smart English 快乐启蒙</h1>
+  <div class="sub">Starter · 1-6册 · 快乐启蒙</div>
+  <nav id="bookNav"></nav>
+  <nav id="modeNav"></nav>
+  <nav id="unitNav"></nav>
+  <div class="panel" id="game"></div>
+</div>
+
+<script>
+// ===== 数据 =====
+const WB={
+starter:{n:'Starter',e:'🌰',u:{
+'U1 你好':{w:[{en:'hello',zh:'你好',em:'👋'},{en:'hi',zh:'嗨',em:'🙋'},{en:'goodbye',zh:'再见',em:'🤚'},{en:'bye',zh:'拜拜',em:'👋'},{en:'yes',zh:'是的',em:'✅'},{en:'no',zh:'不是',em:'❌'},{en:'please',zh:'请',em:'🙏'},{en:'thank you',zh:'谢谢',em:'💝'}],
+d:[{q:'Hello! How are you?',qa:'你好！你好吗？',a:'I am fine, thank you!',aa:'我很好，谢谢！'},{q:'What is your name?',qa:'你叫什么名字？',a:'My name is Tom.',aa:'我叫Tom。'},{q:'Nice to meet you!',qa:'很高兴见到你！',a:'Nice to meet you, too!',aa:'也很高兴见到你！'}]},
+'U2 数字':{w:[{en:'one',zh:'一',em:'1️⃣'},{en:'two',zh:'二',em:'2️⃣'},{en:'three',zh:'三',em:'3️⃣'},{en:'four',zh:'四',em:'4️⃣'},{en:'five',zh:'五',em:'5️⃣'},{en:'big',zh:'大的',em:'🐘'},{en:'small',zh:'小的',em:'🐭'}],
+d:[{q:'How old are you?',qa:'你几岁了？',a:'I am five!',aa:'我五岁！'},{q:'Is the elephant big?',qa:'大象大吗？',a:'Yes! It is big!',aa:'是的！很大！'},{q:'How many cats?',qa:'几只猫？',a:'Two cats!',aa:'两只猫！'}]},
+'U3 颜色':{w:[{en:'red',zh:'红色',em:'🔴'},{en:'blue',zh:'蓝色',em:'🔵'},{en:'yellow',zh:'黄色',em:'🟡'},{en:'green',zh:'绿色',em:'🟢'},{en:'orange',zh:'橙色',em:'🟠'},{en:'purple',zh:'紫色',em:'🟣'},{en:'pink',zh:'粉色',em:'💗'},{en:'white',zh:'白色',em:'⚪'}]},
+'U4 动物':{w:[{en:'dog',zh:'狗',em:'🐕'},{en:'cat',zh:'猫',em:'🐈'},{en:'bird',zh:'鸟',em:'🐦'},{en:'fish',zh:'鱼',em:'🐟'},{en:'rabbit',zh:'兔子',em:'🐰'},{en:'duck',zh:'鸭子',em:'🦆'},{en:'pig',zh:'猪',em:'🐷'},{en:'cow',zh:'奶牛',em:'🐮'}]},
+'U5 家人':{w:[{en:'mom',zh:'妈妈',em:'👩'},{en:'dad',zh:'爸爸',em:'👨'},{en:'brother',zh:'兄弟',em:'👦'},{en:'sister',zh:'姐妹',em:'👧'},{en:'grandma',zh:'奶奶',em:'👵'},{en:'grandpa',zh:'爷爷',em:'👴'},{en:'baby',zh:'宝宝',em:'👶'},{en:'family',zh:'家庭',em:'👨‍👩‍👧‍👦'}]},
+'U6 身体':{w:[{en:'head',zh:'头',em:'🗣️'},{en:'eyes',zh:'眼睛',em:'👀'},{en:'ears',zh:'耳朵',em:'👂'},{en:'nose',zh:'鼻子',em:'👃'},{en:'mouth',zh:'嘴巴',em:'👄'},{en:'hands',zh:'手',em:'🤚'},{en:'feet',zh:'脚',em:'🦶'},{en:'arms',zh:'手臂',em:'💪'}]},
+'U7 食物':{w:[{en:'apple',zh:'苹果',em:'🍎'},{en:'banana',zh:'香蕉',em:'🍌'},{en:'milk',zh:'牛奶',em:'🥛'},{en:'bread',zh:'面包',em:'🍞'},{en:'egg',zh:'鸡蛋',em:'🥚'},{en:'cake',zh:'蛋糕',em:'🎂'},{en:'water',zh:'水',em:'💧'},{en:'candy',zh:'糖果',em:'🍬'}]},
+'U8 玩具':{w:[{en:'ball',zh:'球',em:'⚽'},{en:'doll',zh:'娃娃',em:'🪆'},{en:'kite',zh:'风筝',em:'🪁'},{en:'bike',zh:'自行车',em:'🚲'},{en:'robot',zh:'机器人',em:'🤖'},{en:'blocks',zh:'积木',em:'🧱'},{en:'teddy',zh:'泰迪熊',em:'🧸'},{en:'puzzle',zh:'拼图',em:'🧩'}]},
+'U9 动作':{w:[{en:'run',zh:'跑',em:'🏃'},{en:'jump',zh:'跳',em:'🤸'},{en:'walk',zh:'走',em:'🚶'},{en:'sit',zh:'坐',em:'🪑'},{en:'stand',zh:'站',em:'🧍'},{en:'clap',zh:'拍手',em:'👏'},{en:'sing',zh:'唱歌',em:'🎤'},{en:'dance',zh:'跳舞',em:'💃'}]},
+'U10 感受':{w:[{en:'happy',zh:'开心',em:'😊'},{en:'sad',zh:'难过',em:'😢'},{en:'hot',zh:'热',em:'🥵'},{en:'cold',zh:'冷',em:'🥶'},{en:'sunny',zh:'晴天',em:'☀️'},{en:'rainy',zh:'下雨',em:'🌧️'},{en:'hungry',zh:'饿了',em:'🤤'},{en:'tired',zh:'累了',em:'😴'}],
+d:[{q:'How are you today?',qa:'你今天好吗？',a:'I am happy!',aa:'我很开心！'},{q:'How is the weather?',qa:'天气怎么样？',a:'It is sunny today!',aa:'今天是晴天！'},{q:'Are you hungry?',qa:'你饿了吗？',a:'Yes! I am hungry!',aa:'是的！我饿了！'}]}
+}},
+1:{n:'第1册',e:'🌱',u:{
+'U1 问候':{w:[{en:'hello',zh:'你好',em:'👋'},{en:'goodbye',zh:'再见',em:'👋'},{en:'name',zh:'名字',em:'📛'},{en:'friend',zh:'朋友',em:'👫'},{en:'nice',zh:'好的',em:'👍'},{en:'meet',zh:'遇见',em:'🤝'},{en:'how',zh:'怎样',em:'❓'},{en:'fine',zh:'很好',em:'👌'}],
+d:[{q:'Hello! How are you?',qa:'你好！你好吗？',a:'I am fine!',aa:'我很好！'},{q:'What is your name?',qa:'你叫什么名字？',a:'My name is Amy.',aa:'我叫Amy。'},{q:'Who is your friend?',qa:'谁是你的朋友？',a:'Tom is my friend!',aa:'Tom是我的朋友！'}]},
+'U2 数字':{w:[{en:'one',zh:'一',em:'1️⃣'},{en:'two',zh:'二',em:'2️⃣'},{en:'three',zh:'三',em:'3️⃣'},{en:'four',zh:'四',em:'4️⃣'},{en:'five',zh:'五',em:'5️⃣'},{en:'six',zh:'六',em:'6️⃣'},{en:'seven',zh:'七',em:'7️⃣'},{en:'eight',zh:'八',em:'8️⃣'},{en:'nine',zh:'九',em:'9️⃣'},{en:'ten',zh:'十',em:'🔟'}],
+d:[{q:'How old are you?',qa:'你几岁了？',a:'I am six!',aa:'我六岁！'},{q:'How many fingers?',qa:'几根手指？',a:'Ten fingers!',aa:'十根手指！'},{q:'Can you count to five?',qa:'你能数到五吗？',a:'Yes! One, two, three, four, five!',aa:'能！一、二、三、四、五！'}]},
+'U3 颜色':{w:[{en:'red',zh:'红色',em:'🔴'},{en:'blue',zh:'蓝色',em:'🔵'},{en:'green',zh:'绿色',em:'🟢'},{en:'yellow',zh:'黄色',em:'🟡'},{en:'orange',zh:'橙色',em:'🟠'},{en:'purple',zh:'紫色',em:'🟣'},{en:'pink',zh:'粉色',em:'💗'},{en:'black',zh:'黑色',em:'⚫'},{en:'brown',zh:'棕色',em:'🟤'}]},
+'U4 动物':{w:[{en:'dog',zh:'狗',em:'🐕'},{en:'cat',zh:'猫',em:'🐈'},{en:'bird',zh:'鸟',em:'🐦'},{en:'fish',zh:'鱼',em:'🐟'},{en:'rabbit',zh:'兔子',em:'🐰'},{en:'monkey',zh:'猴子',em:'🐵'},{en:'elephant',zh:'大象',em:'🐘'},{en:'tiger',zh:'老虎',em:'🐯'},{en:'lion',zh:'狮子',em:'🦁'},{en:'bear',zh:'熊',em:'🐻'}]},
+'U5 家庭':{w:[{en:'mom',zh:'妈妈',em:'👩'},{en:'dad',zh:'爸爸',em:'👨'},{en:'brother',zh:'兄弟',em:'👦'},{en:'sister',zh:'姐妹',em:'👧'},{en:'grandma',zh:'奶奶',em:'👵'},{en:'grandpa',zh:'爷爷',em:'👴'},{en:'baby',zh:'宝宝',em:'👶'},{en:'family',zh:'家庭',em:'👨‍👩‍👧‍👦'}]},
+'U6 学习用品':{w:[{en:'book',zh:'书',em:'📖'},{en:'pen',zh:'钢笔',em:'🖊️'},{en:'pencil',zh:'铅笔',em:'✏️'},{en:'eraser',zh:'橡皮',em:'🧹'},{en:'ruler',zh:'尺子',em:'📏'},{en:'bag',zh:'书包',em:'🎒'},{en:'desk',zh:'书桌',em:'🪑'},{en:'crayon',zh:'蜡笔',em:'🖍️'}]},
+'U7 身体':{w:[{en:'eyes',zh:'眼睛',em:'👀'},{en:'ears',zh:'耳朵',em:'👂'},{en:'nose',zh:'鼻子',em:'👃'},{en:'mouth',zh:'嘴巴',em:'👄'},{en:'hands',zh:'手',em:'🤚'},{en:'feet',zh:'脚',em:'🦶'},{en:'head',zh:'头',em:'🗣️'},{en:'arms',zh:'手臂',em:'💪'}]},
+'U8 更多食物':{w:[{en:'pizza',zh:'披萨',em:'🍕'},{en:'bread',zh:'面包',em:'🍞'},{en:'egg',zh:'鸡蛋',em:'🥚'},{en:'rice',zh:'米饭',em:'🍚'},{en:'juice',zh:'果汁',em:'🧃'},{en:'milk',zh:'牛奶',em:'🥛'},{en:'apple',zh:'苹果',em:'🍎'},{en:'banana',zh:'香蕉',em:'🍌'}]},
+'U9 玩具':{w:[{en:'ball',zh:'球',em:'⚽'},{en:'doll',zh:'娃娃',em:'🪆'},{en:'kite',zh:'风筝',em:'🪁'},{en:'bike',zh:'自行车',em:'🚲'},{en:'robot',zh:'机器人',em:'🤖'},{en:'blocks',zh:'积木',em:'🧱'},{en:'teddy',zh:'泰迪熊',em:'🧸'},{en:'puzzle',zh:'拼图',em:'🧩'}]},
+'U10 更多动作':{w:[{en:'fly',zh:'飞',em:'🕊️'},{en:'swim',zh:'游泳',em:'🏊'},{en:'draw',zh:'画画',em:'🎨'},{en:'read',zh:'阅读',em:'📖'},{en:'write',zh:'写',em:'✍️'},{en:'sleep',zh:'睡觉',em:'😴'},{en:'eat',zh:'吃',em:'🍽️'},{en:'drink',zh:'喝',em:'🥤'}]}
+}},
+2:{n:'第2册',e:'🌿',u:{
+'U1 更多食物':{w:[{en:'pizza',zh:'披萨',em:'🍕'},{en:'cake',zh:'蛋糕',em:'🎂'},{en:'cookie',zh:'饼干',em:'🍪'},{en:'candy',zh:'糖果',em:'🍬'},{en:'ice cream',zh:'冰淇淋',em:'🍦'},{en:'sandwich',zh:'三明治',em:'🥪'},{en:'noodles',zh:'面条',em:'🍜'},{en:'chicken',zh:'鸡肉',em:'🍗'}]},
+'U2 衣物':{w:[{en:'shirt',zh:'衬衫',em:'👔'},{en:'pants',zh:'裤子',em:'👖'},{en:'dress',zh:'裙子',em:'👗'},{en:'shoes',zh:'鞋子',em:'👟'},{en:'hat',zh:'帽子',em:'🎩'},{en:'socks',zh:'袜子',em:'🧦'},{en:'jacket',zh:'夹克',em:'🧥'},{en:'T-shirt',zh:'T恤',em:'👕'}]},
+'U3 天气':{w:[{en:'sunny',zh:'晴天',em:'☀️'},{en:'rainy',zh:'下雨',em:'🌧️'},{en:'cloudy',zh:'多云',em:'☁️'},{en:'snowy',zh:'下雪',em:'❄️'},{en:'windy',zh:'有风',em:'💨'},{en:'hot',zh:'热',em:'🥵'},{en:'cold',zh:'冷',em:'🥶'},{en:'warm',zh:'温暖',em:'🌤️'}]},
+'U4 感受':{w:[{en:'happy',zh:'开心',em:'😊'},{en:'sad',zh:'难过',em:'😢'},{en:'angry',zh:'生气',em:'😠'},{en:'hungry',zh:'饿',em:'🤤'},{en:'thirsty',zh:'口渴',em:'🥵'},{en:'tired',zh:'累',em:'😴'},{en:'scared',zh:'害怕',em:'😨'},{en:'excited',zh:'兴奋',em:'🤩'}]},
+'U5 家':{w:[{en:'bedroom',zh:'卧室',em:'🛏️'},{en:'bathroom',zh:'浴室',em:'🛁'},{en:'kitchen',zh:'厨房',em:'🍳'},{en:'living room',zh:'客厅',em:'🛋️'},{en:'door',zh:'门',em:'🚪'},{en:'window',zh:'窗户',em:'🪟'},{en:'sofa',zh:'沙发',em:'🛋️'},{en:'table',zh:'桌子',em:'🪑'}]},
+'U6 游乐场':{w:[{en:'slide',zh:'滑梯',em:'🛝'},{en:'swing',zh:'秋千',em:'🎠'},{en:'seesaw',zh:'跷跷板',em:'⚖️'},{en:'sandbox',zh:'沙池',em:'🏖️'},{en:'jump rope',zh:'跳绳',em:'🪢'},{en:'park',zh:'公园',em:'🏞️'},{en:'climb',zh:'爬',em:'🧗'},{en:'play',zh:'玩',em:'🤾'}]},
+'U7 蔬菜':{w:[{en:'carrot',zh:'胡萝卜',em:'🥕'},{en:'tomato',zh:'西红柿',em:'🍅'},{en:'potato',zh:'土豆',em:'🥔'},{en:'onion',zh:'洋葱',em:'🧅'},{en:'corn',zh:'玉米',em:'🌽'},{en:'broccoli',zh:'西兰花',em:'🥦'},{en:'cucumber',zh:'黄瓜',em:'🥒'},{en:'pepper',zh:'辣椒',em:'🌶️'}]},
+'U8 水果':{w:[{en:'orange',zh:'橙子',em:'🍊'},{en:'grape',zh:'葡萄',em:'🍇'},{en:'watermelon',zh:'西瓜',em:'🍉'},{en:'strawberry',zh:'草莓',em:'🍓'},{en:'peach',zh:'桃子',em:'🍑'},{en:'pear',zh:'梨',em:'🍐'},{en:'mango',zh:'芒果',em:'🥭'},{en:'cherry',zh:'樱桃',em:'🍒'}]},
+'U9 交通工具':{w:[{en:'car',zh:'汽车',em:'🚗'},{en:'bus',zh:'公交车',em:'🚌'},{en:'train',zh:'火车',em:'🚂'},{en:'airplane',zh:'飞机',em:'✈️'},{en:'boat',zh:'船',em:'⛵'},{en:'taxi',zh:'出租车',em:'🚕'},{en:'truck',zh:'卡车',em:'🚛'},{en:'helicopter',zh:'直升机',em:'🚁'}]},
+'U10 星期':{w:[{en:'Monday',zh:'星期一',em:'📅'},{en:'Tuesday',zh:'星期二',em:'📅'},{en:'Wednesday',zh:'星期三',em:'📅'},{en:'Thursday',zh:'星期四',em:'📅'},{en:'Friday',zh:'星期五',em:'📅'},{en:'Saturday',zh:'星期六',em:'🎉'},{en:'Sunday',zh:'星期天',em:'☀️'},{en:'weekend',zh:'周末',em:'🎊'}]}
+}},
+3:{n:'第3册',e:'🌳',u:{
+'U1 地点':{w:[{en:'school',zh:'学校',em:'🏫'},{en:'park',zh:'公园',em:'🏞️'},{en:'hospital',zh:'医院',em:'🏥'},{en:'library',zh:'图书馆',em:'📚'},{en:'supermarket',zh:'超市',em:'🏪'},{en:'zoo',zh:'动物园',em:'🦁'},{en:'museum',zh:'博物馆',em:'🏛️'},{en:'restaurant',zh:'餐厅',em:'🍽️'}]},
+'U2 职业':{w:[{en:'teacher',zh:'老师',em:'👩‍🏫'},{en:'doctor',zh:'医生',em:'👨‍⚕️'},{en:'nurse',zh:'护士',em:'👩‍⚕️'},{en:'firefighter',zh:'消防员',em:'👨‍🚒'},{en:'police',zh:'警察',em:'👮'},{en:'chef',zh:'厨师',em:'👨‍🍳'},{en:'farmer',zh:'农民',em:'👨‍🌾'},{en:'pilot',zh:'飞行员',em:'👨‍✈️'}]},
+'U3 运动':{w:[{en:'soccer',zh:'足球',em:'⚽'},{en:'basketball',zh:'篮球',em:'🏀'},{en:'tennis',zh:'网球',em:'🎾'},{en:'swimming',zh:'游泳',em:'🏊'},{en:'skating',zh:'滑冰',em:'⛸️'},{en:'skiing',zh:'滑雪',em:'🎿'},{en:'baseball',zh:'棒球',em:'⚾'},{en:'golf',zh:'高尔夫',em:'⛳'}]},
+'U4 爱好':{w:[{en:'drawing',zh:'画画',em:'🎨'},{en:'reading',zh:'阅读',em:'📖'},{en:'singing',zh:'唱歌',em:'🎤'},{en:'dancing',zh:'跳舞',em:'💃'},{en:'cooking',zh:'烹饪',em:'🍳'},{en:'fishing',zh:'钓鱼',em:'🎣'},{en:'camping',zh:'露营',em:'🏕️'},{en:'painting',zh:'绘画',em:'🖼️'}]},
+'U5 时间':{w:[{en:'morning',zh:'早上',em:'🌅'},{en:'afternoon',zh:'下午',em:'☀️'},{en:'evening',zh:'傍晚',em:'🌆'},{en:'night',zh:'晚上',em:'🌙'},{en:'clock',zh:'时钟',em:'🕐'},{en:'watch',zh:'手表',em:'⌚'},{en:'late',zh:'迟到',em:'⏰'},{en:'early',zh:'早到',em:'🌄'}],
+d:[{q:'Good morning!',qa:'早上好！',a:'Good morning!',aa:'早上好！'},{q:'What time is it?',qa:'几点了？',a:'It is eight o\'clock.',aa:'八点了。'},{q:'Are you late for school?',qa:'你上学迟到了吗？',a:'No! I am early!',aa:'没有！我来早了！'}]},
+'U6 季节':{w:[{en:'spring',zh:'春天',em:'🌸'},{en:'summer',zh:'夏天',em:'☀️'},{en:'fall',zh:'秋天',em:'🍂'},{en:'winter',zh:'冬天',em:'⛄'},{en:'flower',zh:'花',em:'🌺'},{en:'leaf',zh:'叶子',em:'🍃'},{en:'tree',zh:'树',em:'🌳'},{en:'snow',zh:'雪',em:'❄️'}]},
+'U7 更多动物':{w:[{en:'kangaroo',zh:'袋鼠',em:'🦘'},{en:'penguin',zh:'企鹅',em:'🐧'},{en:'dolphin',zh:'海豚',em:'🐬'},{en:'whale',zh:'鲸鱼',em:'🐋'},{en:'giraffe',zh:'长颈鹿',em:'🦒'},{en:'zebra',zh:'斑马',em:'🦓'},{en:'snake',zh:'蛇',em:'🐍'},{en:'frog',zh:'青蛙',em:'🐸'},{en:'turtle',zh:'乌龟',em:'🐢'}]},
+'U8 日常活动':{w:[{en:'cook',zh:'做饭',em:'👨‍🍳'},{en:'sleep',zh:'睡觉',em:'😴'},{en:'eat',zh:'吃',em:'🍽️'},{en:'wash',zh:'洗',em:'🧼'},{en:'watch TV',zh:'看电视',em:'📺'},{en:'study',zh:'学习',em:'📝'},{en:'listen',zh:'听',em:'👂'},{en:'clean',zh:'打扫',em:'🧹'}]},
+'U9 描述人物':{w:[{en:'tall',zh:'高的',em:'📏'},{en:'short',zh:'矮的',em:'📏'},{en:'thin',zh:'瘦的',em:'🏃'},{en:'pretty',zh:'漂亮',em:'💁'},{en:'handsome',zh:'帅气',em:'🤵'},{en:'strong',zh:'强壮',em:'💪'},{en:'kind',zh:'善良',em:'❤️'},{en:'young',zh:'年轻的',em:'👶'}],
+d:[{q:'Is he tall?',qa:'他高吗？',a:'Yes, he is tall!',aa:'是的，他很高！'},{q:'Are you strong?',qa:'你强壮吗？',a:'Yes! I am strong!',aa:'是的！我很强壮！'},{q:'Is she pretty?',qa:'她漂亮吗？',a:'Yes, she is pretty!',aa:'是的，她很漂亮！'}]},
+'U10 购物':{w:[{en:'buy',zh:'买',em:'🛒'},{en:'sell',zh:'卖',em:'💰'},{en:'store',zh:'商店',em:'🏬'},{en:'money',zh:'钱',em:'💵'},{en:'cheap',zh:'便宜的',em:'🏷️'},{en:'expensive',zh:'贵的',em:'💎'},{en:'market',zh:'市场',em:'🏪'},{en:'price',zh:'价格',em:'💲'}]}
+}},
+4:{n:'第4册',e:'🌲',u:{
+'U1 学校科目':{w:[{en:'math',zh:'数学',em:'🔢'},{en:'science',zh:'科学',em:'🔬'},{en:'English',zh:'英语',em:'🔤'},{en:'music',zh:'音乐',em:'🎵'},{en:'art',zh:'美术',em:'🎨'},{en:'history',zh:'历史',em:'📜'},{en:'geography',zh:'地理',em:'🌍'},{en:'PE',zh:'体育',em:'🏃'}]},
+'U2 日常作息':{w:[{en:'wake up',zh:'起床',em:'⏰'},{en:'brush teeth',zh:'刷牙',em:'🪥'},{en:'eat breakfast',zh:'吃早餐',em:'🥞'},{en:'go to school',zh:'上学',em:'🏫'},{en:'do homework',zh:'做作业',em:'📝'},{en:'take a bath',zh:'洗澡',em:'🛁'},{en:'go to bed',zh:'睡觉',em:'🛌'},{en:'get dressed',zh:'穿衣服',em:'👕'}]},
+'U3 比较级':{w:[{en:'bigger',zh:'更大的',em:'⬆️'},{en:'smaller',zh:'更小的',em:'⬇️'},{en:'faster',zh:'更快的',em:'⚡'},{en:'slower',zh:'更慢的',em:'🐢'},{en:'taller',zh:'更高的',em:'🏗️'},{en:'shorter',zh:'更矮的',em:'📏'},{en:'heavier',zh:'更重的',em:'🏋️'},{en:'lighter',zh:'更轻的',em:'🪶'}]},
+'U4 方向':{w:[{en:'left',zh:'左边',em:'👈'},{en:'right',zh:'右边',em:'👉'},{en:'straight',zh:'直走',em:'⬆️'},{en:'turn',zh:'转弯',em:'↩️'},{en:'near',zh:'近',em:'📍'},{en:'far',zh:'远',em:'🗺️'},{en:'behind',zh:'后面',em:'🔙'},{en:'in front of',zh:'前面',em:'🔜'}]},
+'U5 自然':{w:[{en:'tree',zh:'树',em:'🌳'},{en:'river',zh:'河流',em:'🏞️'},{en:'mountain',zh:'山',em:'⛰️'},{en:'ocean',zh:'海洋',em:'🌊'},{en:'forest',zh:'森林',em:'🌲'},{en:'island',zh:'岛屿',em:'🏝️'},{en:'desert',zh:'沙漠',em:'🏜️'},{en:'lake',zh:'湖',em:'🏞️'}]},
+'U6 健康':{w:[{en:'headache',zh:'头痛',em:'🤕'},{en:'stomachache',zh:'肚子痛',em:'🤢'},{en:'fever',zh:'发烧',em:'🤒'},{en:'medicine',zh:'药',em:'💊'},{en:'rest',zh:'休息',em:'🛌'},{en:'healthy',zh:'健康的',em:'💪'},{en:'exercise',zh:'锻炼',em:'🏋️'},{en:'cold',zh:'感冒',em:'😷'}]},
+'U7 节日':{w:[{en:'birthday',zh:'生日',em:'🎂'},{en:'Christmas',zh:'圣诞节',em:'🎄'},{en:'Halloween',zh:'万圣节',em:'🎃'},{en:'New Year',zh:'新年',em:'🎆'},{en:'party',zh:'派对',em:'🎉'},{en:'gift',zh:'礼物',em:'🎁'},{en:'candle',zh:'蜡烛',em:'🕯️'},{en:'decorate',zh:'装饰',em:'🎊'}]},
+'U8 国家':{w:[{en:'China',zh:'中国',em:'🇨🇳'},{en:'USA',zh:'美国',em:'🇺🇸'},{en:'UK',zh:'英国',em:'🇬🇧'},{en:'Japan',zh:'日本',em:'🇯🇵'},{en:'Korea',zh:'韩国',em:'🇰🇷'},{en:'Canada',zh:'加拿大',em:'🇨🇦'},{en:'Australia',zh:'澳大利亚',em:'🇦🇺'},{en:'France',zh:'法国',em:'🇫🇷'}]},
+'U9 科技':{w:[{en:'computer',zh:'电脑',em:'💻'},{en:'phone',zh:'手机',em:'📱'},{en:'tablet',zh:'平板',em:'📲'},{en:'internet',zh:'互联网',em:'🌐'},{en:'camera',zh:'相机',em:'📷'},{en:'keyboard',zh:'键盘',em:'⌨️'},{en:'mouse',zh:'鼠标',em:'🖱️'},{en:'screen',zh:'屏幕',em:'🖥️'}]},
+'U10 更多职业':{w:[{en:'engineer',zh:'工程师',em:'👷'},{en:'scientist',zh:'科学家',em:'👩‍🔬'},{en:'artist',zh:'艺术家',em:'👨‍🎨'},{en:'writer',zh:'作家',em:'✍️'},{en:'astronaut',zh:'宇航员',em:'👨‍🚀'},{en:'musician',zh:'音乐家',em:'🎼'},{en:'actor',zh:'演员',em:'🎭'},{en:'photographer',zh:'摄影师',em:'📸'}]}
+}},
+5:{n:'第5册',e:'🌴',u:{
+'U1 学校科目':{w:[{en:'math',zh:'数学',em:'🔢'},{en:'science',zh:'科学',em:'🔬'},{en:'English',zh:'英语',em:'🔤'},{en:'music',zh:'音乐',em:'🎵'},{en:'art',zh:'美术',em:'🎨'},{en:'PE',zh:'体育',em:'🏃'},{en:'computer',zh:'电脑',em:'💻'}],
+d:[{q:'Do you like music?',qa:'你喜欢音乐吗？',a:'Yes, I like music!',aa:'是的，我喜欢音乐！'},{q:'What is your favorite class?',qa:'你最喜欢什么课？',a:'I like English!',aa:'我喜欢英语！'},{q:'Do you have math today?',qa:'今天有数学吗？',a:'Yes, I have math.',aa:'是的，有数学。'}]},
+'U2 日常作息':{w:[{en:'wake up',zh:'起床',em:'⏰'},{en:'brush teeth',zh:'刷牙',em:'🪥'},{en:'eat breakfast',zh:'吃早餐',em:'🥞'},{en:'go to school',zh:'上学',em:'🏫'},{en:'have lunch',zh:'吃午饭',em:'🍱'},{en:'do homework',zh:'做作业',em:'📝'},{en:'take a shower',zh:'洗澡',em:'🚿'},{en:'go to bed',zh:'睡觉',em:'🛌'}],
+d:[{q:'What do you do in the morning?',qa:'早上你做什么？',a:'I wake up!',aa:'我起床！'},{q:'What do you do after that?',qa:'然后呢？',a:'I brush my teeth!',aa:'我刷牙！'},{q:'When do you go to bed?',qa:'几点睡觉？',a:'I go to bed at nine.',aa:'我九点睡觉。'}]},
+'U3 天气季节':{w:[{en:'sunny',zh:'晴天',em:'☀️'},{en:'rainy',zh:'下雨',em:'🌧️'},{en:'cloudy',zh:'多云',em:'☁️'},{en:'snowy',zh:'下雪',em:'❄️'},{en:'windy',zh:'有风',em:'💨'},{en:'spring',zh:'春天',em:'🌸'},{en:'summer',zh:'夏天',em:'☀️'},{en:'winter',zh:'冬天',em:'⛄'}],
+d:[{q:'How is the weather?',qa:'天气怎么样？',a:'It is sunny today!',aa:'今天是晴天！'},{q:'Is it cold outside?',qa:'外面冷吗？',a:'Yes, it is very cold!',aa:'是的，很冷！'},{q:'What season is it?',qa:'现在什么季节？',a:'It is summer!',aa:'是夏天！'}]},
+'U4 乐器':{w:[{en:'drum',zh:'鼓',em:'🥁'},{en:'guitar',zh:'吉他',em:'🎸'},{en:'piano',zh:'钢琴',em:'🎹'},{en:'violin',zh:'小提琴',em:'🎻'},{en:'flute',zh:'长笛',em:'🪈'},{en:'trumpet',zh:'小号',em:'🎺'},{en:'sing',zh:'唱歌',em:'🎤'}],
+d:[{q:'Can you play the guitar?',qa:'你会弹吉他吗？',a:'Yes! I can!',aa:'会！我会！'},{q:'What can you play?',qa:'你会演奏什么？',a:'I can play the drum!',aa:'我会打鼓！'},{q:'Can you sing?',qa:'你会唱歌吗？',a:'Yes! I love to sing!',aa:'会！我爱唱歌！'}]},
+'U5 职业1':{w:[{en:'doctor',zh:'医生',em:'👨‍⚕️'},{en:'nurse',zh:'护士',em:'👩‍⚕️'},{en:'pilot',zh:'飞行员',em:'👩‍✈️'},{en:'cook',zh:'厨师',em:'👨‍🍳'},{en:'driver',zh:'司机',em:'🚗'},{en:'farmer',zh:'农民',em:'👩‍🌾'},{en:'police officer',zh:'警察',em:'👮'}],
+d:[{q:'What do you want to be?',qa:'你想成为什么？',a:'I want to be a teacher!',aa:'我想当老师！'},{q:'Are you a doctor?',qa:'你是医生吗？',a:'Yes, I am.',aa:'是的，我是。'},{q:'Is she a pilot?',qa:'她是飞行员吗？',a:'Yes, she is a pilot!',aa:'是的，她是飞行员！'}]},
+'U6 职业2':{w:[{en:'baker',zh:'面包师',em:'🥖'},{en:'vet',zh:'兽医',em:'🐾'},{en:'shopkeeper',zh:'店主',em:'🏪'},{en:'zookeeper',zh:'动物园管理员',em:'🦁'},{en:'firefighter',zh:'消防员',em:'👨‍🚒'},{en:'office worker',zh:'职员',em:'👨‍💼'},{en:'teach',zh:'教',em:'📚'},{en:'help',zh:'帮助',em:'🤝'}],
+d:[{q:'Who helps sick animals?',qa:'谁帮助生病的动物？',a:'A vet helps animals!',aa:'兽医帮助动物！'},{q:'What does a zookeeper do?',qa:'动物园管理员做什么？',a:'A zookeeper trains animals.',aa:'动物园管理员训练动物。'},{q:'What does a shopkeeper do?',qa:'店主做什么？',a:'A shopkeeper sells snacks.',aa:'店主卖零食。'},{q:'Who teaches children?',qa:'谁教小朋友？',a:'A teacher teaches children!',aa:'老师教小朋友！'}]},
+'U7 工作地点':{w:[{en:'hospital',zh:'医院',em:'🏥'},{en:'school',zh:'学校',em:'🏫'},{en:'office',zh:'办公室',em:'🏢'},{en:'police station',zh:'警察局',em:'🚔'},{en:'fire station',zh:'消防站',em:'🚒'},{en:'airport',zh:'机场',em:'🛫'},{en:'bank',zh:'银行',em:'🏦'},{en:'restaurant',zh:'餐厅',em:'🍽️'}],
+d:[{q:'Where does a doctor work?',qa:'医生在哪里工作？',a:'A doctor works at a hospital.',aa:'医生在医院工作。'},{q:'Where does your father work?',qa:'你爸爸在哪里工作？',a:'He works at a bank.',aa:'他在银行工作。'},{q:'Where is your mom?',qa:'你妈妈在哪里？',a:'She is at the office.',aa:'她在办公室。'},{q:'Where do you go?',qa:'你去哪里？',a:'I go to school!',aa:'我去学校！'}]},
+'U8 服装':{w:[{en:'shirt',zh:'衬衫',em:'👔'},{en:'dress',zh:'连衣裙',em:'👗'},{en:'jacket',zh:'夹克',em:'🧥'},{en:'pants',zh:'裤子',em:'👖'},{en:'sweater',zh:'毛衣',em:'🧶'},{en:'skirt',zh:'短裙',em:'👚'},{en:'hat',zh:'帽子',em:'🎩'},{en:'shoes',zh:'鞋子',em:'👟'}],
+d:[{q:'What are you wearing?',qa:'你穿的是什么？',a:'I\'m wearing a dress!',aa:'我穿了连衣裙！'},{q:'What is she wearing?',qa:'她穿的是什么？',a:'She is wearing a shirt.',aa:'她穿了衬衫。'},{q:'What is he wearing?',qa:'他穿的是什么？',a:'He\'s wearing a sweater.',aa:'他穿了毛衣。'},{q:'Where are your shoes?',qa:'你的鞋子在哪？',a:'Here! My shoes!',aa:'这里！我的鞋子！'}]},
+'U9 城市地点':{w:[{en:'supermarket',zh:'超市',em:'🏪'},{en:'cinema',zh:'电影院',em:'🎦'},{en:'library',zh:'图书馆',em:'📚'},{en:'museum',zh:'博物馆',em:'🏛️'},{en:'bakery',zh:'面包店',em:'🥖'},{en:'bookstore',zh:'书店',em:'📚'},{en:'park',zh:'公园',em:'🏞️'},{en:'mall',zh:'商场',em:'🏬'}],
+d:[{q:'Where are you going?',qa:'你要去哪里？',a:'I\'m going to the mall!',aa:'我要去商场！'},{q:'Where is your dad?',qa:'你爸爸在哪里？',a:'He is at the bookstore.',aa:'他在书店。'},{q:'Is there a bakery near here?',qa:'这附近有面包店吗？',a:'Yes, it is over there!',aa:'有，在那边！'},{q:'Let\'s go to the park!',qa:'我们去公园吧！',a:'OK! Let\'s go!',aa:'好的！走吧！'}]},
+'U10 周末活动':{w:[{en:'go shopping',zh:'购物',em:'🛒'},{en:'watch a movie',zh:'看电影',em:'🎬'},{en:'go camping',zh:'露营',em:'🏕️'},{en:'have a picnic',zh:'野餐',em:'🧺'},{en:'ride a bike',zh:'骑车',em:'🚲'},{en:'fly a kite',zh:'放风筝',em:'🪁'},{en:'visit grandma',zh:'看奶奶',em:'👵'},{en:'play sports',zh:'运动',em:'⚽'}],
+d:[{q:'What do you do on Sunday?',qa:'星期天做什么？',a:'I ride my bike!',aa:'我骑自行车！'},{q:'Do you want to fly a kite?',qa:'想放风筝吗？',a:'Yes! Let\'s fly a kite!',aa:'想！放风筝吧！'},{q:'Where did you go?',qa:'你去了哪里？',a:'I visited my grandma!',aa:'我看奶奶了！'}]}
+}},
+6:{n:'第6册',e:'🌵',u:{
+'U1 太空':{w:[{en:'star',zh:'星星',em:'⭐'},{en:'moon',zh:'月亮',em:'🌙'},{en:'sun',zh:'太阳',em:'☀️'},{en:'planet',zh:'行星',em:'🪐'},{en:'rocket',zh:'火箭',em:'🚀'},{en:'spaceship',zh:'宇宙飞船',em:'🛸'},{en:'galaxy',zh:'银河',em:'🌌'},{en:'alien',zh:'外星人',em:'👽'}]},
+'U2 环保':{w:[{en:'recycle',zh:'回收',em:'♻️'},{en:'pollution',zh:'污染',em:'🏭'},{en:'energy',zh:'能源',em:'⚡'},{en:'protect',zh:'保护',em:'🛡️'},{en:'save',zh:'拯救',em:'💾'},{en:'environment',zh:'环境',em:'🌱'},{en:'clean',zh:'干净的',em:'✨'},{en:'earth',zh:'地球',em:'🌍'}]},
+'U3 发明':{w:[{en:'invent',zh:'发明',em:'🔧'},{en:'create',zh:'创造',em:'✨'},{en:'light bulb',zh:'灯泡',em:'💡'},{en:'telephone',zh:'电话',em:'☎️'},{en:'wheel',zh:'轮子',em:'🛞'},{en:'paper',zh:'纸',em:'📄'},{en:'compass',zh:'指南针',em:'🧭'},{en:'robot',zh:'机器人',em:'🤖'}]},
+'U4 旅行':{w:[{en:'passport',zh:'护照',em:'📔'},{en:'ticket',zh:'票',em:'🎫'},{en:'luggage',zh:'行李',em:'🧳'},{en:'hotel',zh:'酒店',em:'🏨'},{en:'airport',zh:'机场',em:'🛫'},{en:'sightseeing',zh:'观光',em:'📸'},{en:'souvenir',zh:'纪念品',em:'🎁'},{en:'tourist',zh:'游客',em:'🗺️'}]},
+'U5 节日':{w:[{en:'celebrate',zh:'庆祝',em:'🎉'},{en:'festival',zh:'节日',em:'🎊'},{en:'dragon',zh:'龙',em:'🐉'},{en:'lantern',zh:'灯笼',em:'🏮'},{en:'firework',zh:'烟花',em:'🎆'},{en:'parade',zh:'游行',em:'🥁'},{en:'tradition',zh:'传统',em:'📜'},{en:'lucky',zh:'幸运的',em:'🍀'}]},
+'U6 健康':{w:[{en:'exercise',zh:'锻炼',em:'🏋️'},{en:'vegetable',zh:'蔬菜',em:'🥬'},{en:'fruit',zh:'水果',em:'🍎'},{en:'sleep',zh:'睡眠',em:'😴'},{en:'water',zh:'水',em:'💧'},{en:'vitamin',zh:'维生素',em:'💊'},{en:'strong',zh:'强壮',em:'💪'},{en:'happy',zh:'快乐',em:'😊'}]},
+'U7 科技':{w:[{en:'robot',zh:'机器人',em:'🤖'},{en:'app',zh:'应用',em:'📱'},{en:'game',zh:'游戏',em:'🎮'},{en:'video',zh:'视频',em:'📹'},{en:'search',zh:'搜索',em:'🔍'},{en:'download',zh:'下载',em:'⬇️'},{en:'upload',zh:'上传',em:'⬆️'},{en:'online',zh:'在线',em:'🌐'}]},
+'U8 音乐':{w:[{en:'piano',zh:'钢琴',em:'🎹'},{en:'guitar',zh:'吉他',em:'🎸'},{en:'drum',zh:'鼓',em:'🥁'},{en:'violin',zh:'小提琴',em:'🎻'},{en:'song',zh:'歌曲',em:'🎵'},{en:'concert',zh:'音乐会',em:'🎼'},{en:'band',zh:'乐队',em:'🎺'},{en:'practice',zh:'练习',em:'🏋️'}]},
+'U9 运动':{w:[{en:'soccer',zh:'足球',em:'⚽'},{en:'basketball',zh:'篮球',em:'🏀'},{en:'tennis',zh:'网球',em:'🎾'},{en:'swimming',zh:'游泳',em:'🏊'},{en:'running',zh:'跑步',em:'🏃'},{en:'cycling',zh:'骑行',em:'🚴'},{en:'team',zh:'团队',em:'🤝'},{en:'champion',zh:'冠军',em:'🥇'}]},
+'U10 梦想':{w:[{en:'future',zh:'未来',em:'🔮'},{en:'dream',zh:'梦想',em:'💭'},{en:'goal',zh:'目标',em:'🎯'},{en:'grow up',zh:'长大',em:'🌱'},{en:'become',zh:'成为',em:'🔄'},{en:'hope',zh:'希望',em:'🙏'},{en:'wish',zh:'愿望',em:'⭐'},{en:'change',zh:'改变',em:'🦋'}]}
+}}
+};
+
+// ===== 状态 =====
+let book='starter',mode='flashcard',unit=null;
+let words=[],score=0,total=0,combo=0;
+
+function speak(t){
+  if('speechSynthesis' in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='en-US';u.rate=0.85;u.pitch=1.15;speechSynthesis.speak(u);}
+}
+
+// ===== 导航 =====
+function buildNav(){
+  const bn=document.getElementById('bookNav'),mn=document.getElementById('modeNav'),un=document.getElementById('unitNav');
+  bn.innerHTML='';mn.innerHTML='';un.innerHTML='';
+  [['starter','🌰','Starter'],['1','🌱','1册'],['2','🌿','2册'],['3','🌳','3册'],['4','🌲','4册'],['5','🌴','5册'],['6','🌵','6册']].forEach(([k,e,n])=>{
+    const b=document.createElement('button');b.textContent=e+' '+n;b.className=k==book?'on':'';b.onclick=()=>{book=k;unit=Object.keys(WB[k].u)[0];score=total=combo=0;buildNav();run();};bn.appendChild(b);
+  });
+  [['flashcard','📇 闪卡'],['quiz','✅ 选择'],['match','🔗 连连看'],['dialogue','💬 对话']].forEach(([id,label])=>{
+    const b=document.createElement('button');b.textContent=label;b.className=id==mode?'on':'';b.onclick=()=>{mode=id;buildNav();run();};mn.appendChild(b);
+  });
+  Object.keys(WB[book].u).forEach((u,i)=>{
+    const b=document.createElement('button');b.textContent=(i+1)+'.'+u;b.className=u==unit?'on':'';b.onclick=()=>{unit=u;score=total=combo=0;buildNav();run();};un.appendChild(b);
+  });
+}
+
+// ===== 启动 =====
+function run(){
+  words=WB[book].u[unit].w;
+  if(mode==='flashcard')startFC();
+  else if(mode==='quiz')startQuiz();
+  else if(mode==='match')startMatch();
+  else startDia();
+}
+
+// ===== 得分栏 =====
+function sb(extra=''){
+  return `<div class="score"><div><span>${score}</span>⭐得分</div><div><span>${combo>2?'🔥'+combo+'连击!':''}</span></div><div><span>${total}</span>📝已答</div><div><span>${words.length}</span>📚单词</div>${extra}</div>`;
+}
+
+// ===== 闪卡 =====
+let fci=0;
+function startFC(){fci=0;renderFC();}
+function renderFC(){
+  const w=words[fci];
+  document.getElementById('game').innerHTML=sb(`<div><span>${fci+1}/${words.length}</span>📇进度</div>`)+
+  `<div class="fc pop"><div class="card" id="cd" onclick="this.classList.toggle('flip')"><div class="card-inner"><div class="cf"><em>${w.em}</em>${w.en}</div><div class="cb"><em>${w.em}</em>${w.zh}<small>${w.en}</small></div></div></div>
+  <div class="nv"><button onclick="prevFC(event)">◀</button><span>${fci+1}/${words.length}</span><button onclick="nextFC(event)">▶</button></div>
+  <button class="btn btn-say" onclick="speak('${w.en.replace(/'/g,"\\'")}')">🔊 听发音</button></div>`;
+}
+function nextFC(e){e.stopPropagation();if(fci<words.length-1){fci++;renderFC();}}
+function prevFC(e){e.stopPropagation();if(fci>0){fci--;renderFC();}}
+
+// ===== 选择题 =====
+let qi=0,qw=[];
+function startQuiz(){qw=[...words].sort(()=>Math.random()-0.5).slice(0,10);qi=0;combo=0;renderQuiz();}
+function renderQuiz(){
+  if(qi>=qw.length)return showResult();
+  const w=qw[qi],ok=w.zh;
+  let opts=words.filter(x=>x.zh!==ok).sort(()=>Math.random()-0.5).slice(0,3).map(x=>x.zh);
+  while(opts.length<3)opts.push('---');
+  opts=[...opts,ok].sort(()=>Math.random()-0.5);
+  document.getElementById('game').innerHTML=sb(`<div><span>${qi+1}/${qw.length}</span>📝题目</div>`)+
+  `<div class="qz pop"><div class="qpro">第${qi+1}/${qw.length}题</div><span class="qem">${w.em}</span><div class="qen">${w.en}</div>
+  <button class="btn btn-say" onclick="speak('${w.en.replace(/'/g,"\\'")}')" style="margin-bottom:10px">🔊 听发音</button>
+  <div class="qopts">${opts.map(o=>`<div onclick="checkQ(this,'${o.replace(/'/g,"\\'")}','${ok.replace(/'/g,"\\'")}')">${o}</div>`).join('')}</div></div>`;
+  setTimeout(()=>speak(w.en),300);
+}
+function checkQ(el,a,ok){
+  document.querySelectorAll('.qopts div').forEach(o=>o.style.pointerEvents='none');
+  if(a===ok){el.classList.add('ok');score+=10;combo++;spawnConfetti(5);showFloat('+10',el);if(combo===3)showPet('连对3题！太厉害了！🌟');if(combo===5){showPet('连对5题！你是天才！🎉');spawnConfetti(20);}}
+  else{el.classList.add('ng');combo=0;document.querySelectorAll('.qopts div').forEach(o=>{if(o.textContent===ok)o.classList.add('ok');});}
+  total++;setTimeout(()=>{qi++;renderQuiz();},1000);
+}
+function showResult(){
+  const max=Math.min(10,words.length)*10,ratio=score/max;
+  let stars,emoji;if(ratio>=0.9){stars='⭐⭐⭐⭐⭐';emoji='🏆';}else if(ratio>=0.7){stars='⭐⭐⭐⭐';emoji='😄';}else if(ratio>=0.5){stars='⭐⭐⭐';emoji='🙂';}else{stars='⭐⭐';emoji='💪';}
+  document.getElementById('game').innerHTML=sb()+`<div class="result pop"><div class="big-e">${emoji}</div><div class="stars">${stars}</div><h3>得分: ${score}/${max}</h3><p>正确率: ${Math.round(ratio*100)}%</p><button class="btn btn-go" onclick="startQuiz()">🔄 再来一次</button></div>`;
+  if(ratio>=0.7)spawnConfetti(20);
+}
+
+// ===== 连连看 =====
+let mp=[],ms=null,mt=0,mi=null,md=0;
+function startMatch(){mp=[...words].sort(()=>Math.random()-0.5).slice(0,8);ms=null;md=0;mt=0;combo=0;if(mi)clearInterval(mi);mi=setInterval(()=>{mt++;const e=document.getElementById('mtimer');if(e)e.textContent='⏱️ '+mt+'秒';},1000);renderMatch();}
+function renderMatch(){
+  const en=mp.map(w=>({...w,s:'en'})).sort(()=>Math.random()-0.5);
+  const zh=mp.map(w=>({...w,s:'zh'})).sort(()=>Math.random()-0.5);
+  document.getElementById('game').innerHTML=sb(`<div><span id="mtimer">⏱️ 0秒</span>⏱️时间</div>`)+
+  `<div style="text-align:center;color:#aaa;font-size:0.85em;margin-bottom:6px;font-weight:700">点英文 → 点中文 → 配对！</div>
+  <div class="mg pop"><div class="mc">${en.map(w=>`<div data-k="${w.en}" onclick="selM(this,'en','${w.en.replace(/'/g,"\\'")}')">${w.em} ${w.en}</div>`).join('')}</div>
+  <div class="mc">${zh.map(w=>`<div data-k="${w.en}" onclick="selM(this,'zh','${w.en.replace(/'/g,"\\'")}')">${w.zh}</div>`).join('')}</div></div>`;
+}
+function selM(el,s,k){
+  if(el.classList.contains('done'))return;
+  if(s==='en'){document.querySelectorAll('.mc div.sel').forEach(i=>i.classList.remove('sel'));el.classList.add('sel');ms={el,k};}
+  else if(s==='zh'&&ms){
+    if(ms.k===k){ms.el.classList.add('done');el.classList.add('done');score+=10;total++;combo++;md++;showFloat('+10',el);if(combo===3)showPet('连对3题！');if(combo===5){showPet('连对5题！天才！🎉');spawnConfetti(20);}ms=null;document.querySelectorAll('.mc div.sel').forEach(i=>i.classList.remove('sel'));if(md>=mp.length){clearInterval(mi);setTimeout(()=>{document.getElementById('game').innerHTML=sb()+`<div class="result pop"><div class="big-e">⚡</div><div class="stars">⭐⭐⭐⭐⭐</div><h3>用时: ${mt}秒!</h3><button class="btn btn-go" onclick="startMatch()">🔄 再来一次</button></div>`;if(mt<30)spawnConfetti(15);},500);}}
+    else{el.classList.add('err');ms.el.classList.add('err');combo=0;const p=ms;ms=null;document.querySelectorAll('.mc div.sel').forEach(i=>i.classList.remove('sel'));setTimeout(()=>{el.classList.remove('err');p.el.classList.remove('err');},500);}
+  }
+}
+
+// ===== 对话 =====
+let di=0,dp='q',dItems=[],dIsQA=false;
+function startDia(){
+  const u=WB[book].u[unit];
+  if(u.d){dItems=u.d;dIsQA=true;}else{dItems=autoDialog(u.w,unit);dIsQA=true;}
+  di=0;dp='q';score=total=combo=0;renderDia();
+}
+// 根据单元主题自动生成启蒙问答（每单元3组Q&A）
+function autoDialog(ws,un){
+  const n=un.toLowerCase(),w=ws.filter(x=>!/^\d/.test(x.en)&&x.en.length<12);
+  if(w.length<3)w.push(...ws);
+  // 模板：[问题英文, 问题中文, 回答英文(___=单词), 回答中文(___=单词)]
+  let T;
+  if(/动物/.test(n)) T=[['What is this?','这是什么？','It is a ___.','这是一只___。'],['What animal do you see?','你看到什么动物？','I see a ___.','我看到一只___。'],['Do you like ___?','你喜欢___吗？','Yes! I like ___.','喜欢！我喜欢___。']];
+  else if(/食物|水果|蔬菜/.test(n)) T=[['What is this?','这是什么？','It is ___.','这是___。'],['Do you like ___?','你喜欢___吗？','Yes! I love ___.','喜欢！我爱___。'],['What do you want?','你想要什么？','I want ___.','我想要___。']];
+  else if(/家人|家庭/.test(n)) T=[['Who is this?','这是谁？','This is my ___.','这是我的___。'],['Do you love your ___?','你爱你的___吗？','Yes! I love my ___.','爱！我爱我的___。'],['Who is she?','她是谁？','She is my ___.','她是我的___。']];
+  else if(/身体/.test(n)) T=[['What is this?','这是什么？','This is my ___.','这是我的___。'],['Can you touch your ___?','你能摸摸___吗？','Touch my ___.','摸摸___。'],['What do you see?','你看到什么？','I see your ___.','我看到你的___。']];
+  else if(/颜色/.test(n)) T=[['What color is it?','这是什么颜色？','It is ___.','这是___。'],['What color do you like?','你喜欢什么颜色？','I like ___.','我喜欢___。'],['Is it ___?','它是___吗？','Yes, it is ___.','是的，是___。']];
+  else if(/数字/.test(n)) T=[['How many?','多少个？','___!','___个！'],['What number?','什么数字？','It is ___.','是___。'],['Is it ___?','是___吗？','Yes, it is ___.','是的，是___。']];
+  else if(/动作|活动|作息/.test(n)) T=[['What can you do?','你能做什么？','I can ___.','我能___。'],['Can you ___?','你能___吗？','Yes, I can!','是的，我能！'],['Let\'s ___!','我们一起___吧！','OK! Let\'s ___!','好的！一起___！']];
+  else if(/天气/.test(n)) T=[['How is the weather?','天气怎么样？','It is ___.','天气___。'],['Is it ___ today?','今天___吗？','Yes, it is ___.','是的，___。'],['What do you like?','你喜欢什么天气？','I like ___.','我喜欢___。']];
+  else if(/感受|情绪/.test(n)) T=[['How are you?','你怎么样？','I am ___.','我很___。'],['Are you ___?','你___吗？','Yes, I am ___.','是的，我___。'],['How do you feel?','你感觉怎样？','I feel ___.','我感觉___。']];
+  else if(/季节/.test(n)) T=[['What season is it?','什么季节？','It is ___.','是___。'],['Do you like ___?','你喜欢___吗？','Yes! I like ___.','喜欢！我喜欢___。'],['What season comes next?','下一个是什么季节？','____ is next.','下一个是___。']];
+  else if(/衣物|服装/.test(n)) T=[['What are you wearing?','你穿的是什么？','I am wearing ___.','我穿着___。'],['Do you like this ___?','你喜欢这件___吗？','Yes! I like it!','喜欢！'],['Put on your ___.','穿上你的___。','OK! Put on ___.','好的！穿上___。']];
+  else if(/交通/.test(n)) T=[['What is it?','这是什么？','It is a ___.','这是一辆___。'],['How do you go to school?','你怎么上学？','I go by ___.','我坐___去。'],['Do you see the ___?','你看到___了吗？','Yes! I see a ___.','是的！看到了___。']];
+  else if(/地点|城市/.test(n)) T=[['Where is it?','在哪里？','It is the ___.','这是___。'],['Where are you going?','你去哪里？','I go to the ___.','我去___。'],['Do you like the ___?','你喜欢___吗？','Yes! The ___ is fun!','喜欢！___很好玩！']];
+  else if(/职业/.test(n)) T=[['What do you want to be?','你想当什么？','I want to be a ___.','我想当___。'],['Is she a ___?','她是___吗？','Yes, she is a ___.','是的，她是___。'],['What does a ___ do?','____做什么？','A ___ helps people.','____帮助人们。']];
+  else if(/运动/.test(n)) T=[['What sport do you like?','你喜欢什么运动？','I like ___.','我喜欢___。'],['Can you play ___?','你会玩___吗？','Yes! I can play!','会！我会！'],['Let\'s play ___!','我们玩___吧！','OK! Let\'s go!','好的！来吧！']];
+  else if(/爱好/.test(n)) T=[['What do you like to do?','你喜欢做什么？','I like ___.','我喜欢___。'],['Is ___ fun?','____好玩吗？','Yes! ____ is fun!','是的！____很好玩！'],['Can you ___?','你会___吗？','Yes, I can ___!','会！我会___！']];
+  else if(/学习|学校/.test(n)) T=[['What do you have?','你有什么？','I have ___.','我有___。'],['Do you like ___ class?','你喜欢___课吗？','Yes! ____ is fun!','喜欢！____很好玩！'],['What subject is this?','这是什么课？','It is ___.','这是___。']];
+  else if(/星期/.test(n)) T=[['What day is today?','今天星期几？','Today is ___.','今天___。'],['Do you like ___?','你喜欢___吗？','Yes! ____ is fun!','喜欢！____很有趣！'],['What day is tomorrow?','明天星期几？','Tomorrow is ___.','明天___。']];
+  else if(/玩具|游乐/.test(n)) T=[['What toy is this?','这是什么玩具？','It is a ___.','这是一个___。'],['Do you like the ___?','你喜欢___吗？','Yes! I love my ___!','喜欢！我爱我的___！'],['Can I play with the ___?','我能玩___吗？','Sure! Let\'s play!','当然！一起玩！']];
+  else if(/家|房间/.test(n)) T=[['Where are you?','你在哪里？','I am in the ___.','我在___里。'],['What room is this?','这是什么房间？','This is the ___.','这是___。'],['Do you like your ___?','你喜欢你的___吗？','Yes! It is nice!','喜欢！很好！']];
+  else if(/比较|描述/.test(n)) T=[['Is it ___?','它___吗？','Yes, it is ___.','是的，它___。'],['Are you ___?','你___吗？','Yes, I am ___.','是的，我___。'],['Which is ___?','哪个更___？','This one is ___.','这个更___。']];
+  else if(/方向/.test(n)) T=[['Where is it?','在哪里？','It is on the ___.','在___。'],['Which way?','哪边？','Turn ___.','向___转。'],['Is it ___?','它在___吗？','Yes, ___.','是的，___。']];
+  else if(/自然/.test(n)) T=[['What do you see?','你看到什么？','I see a ___.','我看到___。'],['Do you like the ___?','你喜欢___吗？','Yes! The ___ is beautiful!','喜欢！___很美！'],['Where is the ___?','____在哪里？','Over there!','在那边！']];
+  else if(/健康/.test(n)) T=[['Are you OK?','你还好吗？','I have a ___.','我___。'],['What do you need?','你需要什么？','I need ___.','我需要___。'],['Is it good for you?','这对你好吗？','Yes! ____ is healthy!','是的！____很健康！']];
+  else if(/节日/.test(n)) T=[['What is today?','今天是什么日子？','Today is ___.','今天是___。'],['Happy ___!','____快乐！','Thank you!','谢谢你！'],['Do you like ___?','你喜欢___吗？','Yes! I love ___!','喜欢！我爱___！']];
+  else if(/国家/.test(n)) T=[['Where are you from?','你来自哪里？','I am from ___.','我来自___。'],['Do you live in ___?','你住在___吗？','Yes! I live in ___.','是的！我住在___。'],['Where is ___?','____在哪里？','____ is far away.','____很远。']];
+  else if(/科技/.test(n)) T=[['What is this?','这是什么？','It is a ___.','这是一个___。'],['Do you have a ___?','你有___吗？','Yes, I have a ___.','是的，我有一个___。'],['Can you use a ___?','你会用___吗？','Yes! I can use it!','会！我会用！']];
+  else if(/音乐|乐器/.test(n)) T=[['Can you play the ___?','你会演奏___吗？','Yes, I can!','是的！我会！'],['What instrument is this?','这是什么乐器？','It is a ___.','这是___。'],['Do you like the ___?','你喜欢___吗？','Yes! I love music!','喜欢！我爱音乐！']];
+  else if(/购物/.test(n)) T=[['What do you want?','你想要什么？','I want ___.','我想要___。'],['Can you buy ___?','你能买___吗？','OK! I will buy ___.','好的！我买___。'],['How much?','多少钱？','It is ___.','它很___。']];
+  else if(/太空/.test(n)) T=[['What do you see?','你看到什么？','I see a ___.','我看到___。'],['Is the ___ bright?','____亮吗？','Yes! It is so bright!','是的！很亮！'],['Do you want to see a ___?','你想看___吗？','Yes! I do!','想！']];
+  else if(/环保/.test(n)) T=[['What do we do?','我们做什么？','We must ___.','我们必须___。'],['Can you ___?','你能___吗？','Yes! I can help!','能！我来帮忙！'],['Let\'s ____ the Earth!','我们一起____地球！','OK! Let\'s do it!','好的！一起！']];
+  else if(/发明/.test(n)) T=[['What is this?','这是什么？','It is a ___.','这是___。'],['Who made the ___?','谁发明了___？','People made it.','人们发明的。'],['Do you like the ___?','你喜欢___吗？','Yes! It is cool!','喜欢！很酷！']];
+  else if(/旅行/.test(n)) T=[['What is this?','这是什么？','It is my ___.','这是我的___。'],['Do you have a ___?','你有___吗？','Yes! Here it is!','有！在这里！'],['Where are you going?','你去哪里？','I am going on a trip!','我去旅行！']];
+  else if(/梦想|未来/.test(n)) T=[['What is your ___?','你的___是什么？','My ___ is to be happy!','我的___是快乐！'],['Do you have a ___?','你有___吗？','Yes! I have a big ___!','有！我有很大的___！'],['When you grow up?','长大以后？','I want to ___.','我想___。']];
+  else T=[['What is this?','这是什么？','It is ___.','这是___。'],['Do you like ___?','你喜欢___吗？','Yes! I like ___.','喜欢！我喜欢___。'],['Can you say ___?','你能说___吗？','Yes! ____!','能！___！']];
+
+  return w.slice(0,3).map((x,i)=>{
+    const q=T[i][0].includes('___')?T[i][0].replace('___',x.en):T[i][0];
+    const qa=T[i][1].includes('___')?T[i][1].replace('___',x.zh):T[i][1];
+    const a=T[i][2].replace(/___/g,x.en);
+    const aa=T[i][3].replace(/___/g,x.zh);
+    return {q,qa,a,aa};
+  });
+}
+function renderDia(){
+  if(di>=dItems.length)return showDResult();
+  const it=dItems[di];
+  if(dIsQA){
+    const isQ=(dp==='q'),en=isQ?it.q:it.a,zh=isQ?it.qa:it.aa;
+    document.getElementById('game').innerHTML=sb(`<div><span>${di+1}/${dItems.length}</span>💬对话</div>`)+
+    `<div class="pop"><div class="dstep">${isQ?'步骤 1/2：听提问，跟读提问':'步骤 2/2：听回答，跟读回答'}</div>
+    <div class="dtag ${isQ?'q':'a'}">${isQ?'提问 Listen':'回答 Answer'}</div>
+    <div class="dcard"><div style="font-size:2.5em">${isQ?'🤔':'💡'}</div><div class="dxh">${zh}</div><div class="dxen">${en}</div></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin:10px 0"><button class="btn btn-say" onclick="replayD()">🔊 再听</button><button class="btn btn-go" id="dBtn" onclick="doRepeat()">🎤 ${isQ?'跟读提问':'跟读回答'}</button></div>
+    <div style="text-align:center;font-weight:700;color:#00b894;min-height:30px" id="dCele"></div></div>`;
+    setTimeout(()=>speak(en),400);
+  }else{
+    document.getElementById('game').innerHTML=sb(`<div><span>${di+1}/${dItems.length}</span>💬跟读</div>`)+
+    `<div class="pop"><div class="dtag a">📖 跟读句子</div>
+    <div class="dcard"><div style="font-size:2.5em">🗣️</div><div class="dxh">${it.aa}</div><div class="dxen">${it.a}</div></div>
+    <div style="display:flex;gap:10px;justify-content:center;margin:10px 0"><button class="btn btn-say" onclick="replayD()">🔊 再听</button><button class="btn btn-go" id="dBtn" onclick="doSimple()">🎤 我跟读</button></div>
+    <div style="text-align:center;font-weight:700;color:#00b894;min-height:30px" id="dCele"></div></div>`;
+    setTimeout(()=>speak(it.a),400);
+  }
+}
+function replayD(){const it=dItems[di];speak(dIsQA?(dp==='q'?it.q:it.a):it.a);}
+function doSimple(){
+  const b=document.getElementById('dBtn'),c=document.getElementById('dCele');b.disabled=true;b.textContent='✅ 完成！';
+  c.textContent='🌟 太棒了！读得真好！';speak(dItems[di].a);score+=5;total++;combo++;
+  setTimeout(()=>{di++;b.disabled=false;b.textContent='🎤 我跟读';renderDia();},1500);
+}
+function doRepeat(){
+  const b=document.getElementById('dBtn'),c=document.getElementById('dCele'),en=dp==='q'?dItems[di].q:dItems[di].a;
+  b.disabled=true;b.textContent='✅ 完成！';c.textContent='🌟 太棒了！读得真好！';speak(en);score+=5;total++;
+  if(dp==='q'){dp='a';setTimeout(()=>{b.disabled=false;renderDia();},1500);}
+  else{dp='q';di++;combo++;setTimeout(()=>{b.disabled=false;renderDia();},1800);}
+}
+function showDResult(){
+  const max=dItems.length*10,ratio=score/max;
+  let stars,emoji;if(ratio>=0.9){stars='⭐⭐⭐⭐⭐';emoji='🏆';}else if(ratio>=0.7){stars='⭐⭐⭐⭐';emoji='😄';}else if(ratio>=0.5){stars='⭐⭐⭐';emoji='🙂';}else{stars='⭐⭐';emoji='💪';}
+  document.getElementById('game').innerHTML=sb()+`<div class="result pop"><div class="big-e">${emoji}</div><div class="stars">${stars}</div><h3>得分: ${score}/${max}</h3><p>完成${dItems.length}句</p><button class="btn btn-go" onclick="startDia()">🔄 再来一次</button></div>`;
+  if(ratio>=0.7)spawnConfetti(20);
+}
+
+// ===== 特效 =====
+function showFloat(t,el){const r=el.getBoundingClientRect(),fp=document.createElement('div');fp.className='fpt';fp.textContent=t;fp.style.left=r.left+r.width/2-15+'px';fp.style.top=r.top+'px';document.body.appendChild(fp);setTimeout(()=>fp.remove(),900);}
+function spawnConfetti(n){const cs=['#ff6b6b','#ffd93d','#6bcb77','#4d96ff','#ff922b','#845ef7','#ff6eb4','#20c997'];for(let i=0;i<n;i++){setTimeout(()=>{const p=document.createElement('div');p.className='cfx';p.style.left=Math.random()*85+5+'%';p.style.top='-20px';p.style.background=cs[Math.floor(Math.random()*cs.length)];p.style.width=(8+Math.random()*14)+'px';p.style.height=(8+Math.random()*14)+'px';document.body.appendChild(p);setTimeout(()=>p.remove(),3000);},i*50);}}
+function showPet(msg){const m=document.getElementById('petMsg');m.textContent=msg;m.style.display='block';setTimeout(()=>m.style.display='none',2500);}
+
+// ===== 键盘 =====
+document.addEventListener('keydown',e=>{
+  if(mode==='flashcard'){if(e.key==='ArrowLeft'){e.preventDefault();prevFC(e);}if(e.key==='ArrowRight'){e.preventDefault();nextFC(e);}if(e.key===' '){{e.preventDefault();try{document.getElementById('cd').classList.toggle('flip');}catch(e){}}}}
+});
+
+// ===== 吉祥物 =====
+const pets=['🐶','🐱','🐰','🐼','🦊','🐸'];let pi=Math.floor(Math.random()*pets.length);
+document.getElementById('pet').textContent=pets[pi];
+document.getElementById('pet').addEventListener('click',()=>{pi=(pi+1)%pets.length;document.getElementById('pet').textContent=pets[pi];showPet('你好呀！👋 加油！');});
+
+unit=Object.keys(WB[book].u)[0];
+buildNav();run();
+</script>
+</body>
+</html>
